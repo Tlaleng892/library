@@ -1,14 +1,13 @@
 const myLibrary = [];
 
 function Book(title, author, pages, read) {
-  this.id = crypto.randomUUID(); // unique id for each book
+  this.id = crypto.randomUUID();
   this.title = title;
   this.author = author;
   this.pages = pages;
   this.read = read;
 }
 
-// Prototype to toggle read status later
 Book.prototype.toggleRead = function() {
   this.read = !this.read;
 };
@@ -19,10 +18,9 @@ function addBookToLibrary(title, author, pages, read) {
 }
 
 // Test: add 2 books manually
-addBookToLibrary("Atomic Habits", "James Clear", 320, true);
+addBookToLibrary("Atomic Habits", "James Clear", 320, false);
 addBookToLibrary("The Hobbit", "J.R.R. Tolkien", 310, false);
 
-console.log(myLibrary);
 function displayBooks() {
   const list = document.getElementById("book-list");
   list.innerHTML = "";
@@ -35,12 +33,14 @@ function displayBooks() {
 
 displayBooks();
 
-ssdocument.getElementById("book-form").addEventListener("submit", function(e) {
-  e.preventDefault();
+// NEW PART - Listen to the form!
+const form = document.getElementById("book-form");
+form.addEventListener("submit", function(event) {
+  event.preventDefault();
   const title = document.getElementById("title").value;
   const author = document.getElementById("author").value;
   const pages = document.getElementById("pages").value;
-  myLibrary.push(new Book(title, author, pages));
+  addBookToLibrary(title, author, pages, false);
   displayBooks();
-  this.reset();
+  form.reset();
 });
