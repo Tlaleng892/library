@@ -48,6 +48,7 @@ function renderBooks() {
       <p>${book.pages} pages</p>
       <p>${book.read ? "✅ Finished" : "📖 Not Yet"}</p>
       <button onclick="toggleRead(${realIndex})">${book.read ? "Mark Unread" : "Mark Read"}</button>
+            <button onclick="editBook(${realIndex})">Edit</button>
       <button onclick="deleteBook(${realIndex})">Delete</button>
     `;
     container.appendChild(card);
@@ -84,3 +85,17 @@ function deleteBook(index) {
 
 document.getElementById("search").addEventListener("input", renderBooks);
 renderBooks();
+function editBook(index) {
+  let book = myLibrary[index];
+  let newTitle = prompt("Edit Title:", book.title);
+  if (newTitle === null) return;
+  let newAuthor = prompt("Edit Author:", book.author);
+  if (newAuthor === null) return;
+  let newPages = prompt("Edit Pages:", book.pages);
+  if (newPages === null) return;
+  book.title = newTitle;
+  book.author = newAuthor;
+  book.pages = Number(newPages) || 0;
+  saveLibrary();
+  renderBooks();
+}
