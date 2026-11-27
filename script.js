@@ -46,7 +46,7 @@ function renderBooks() {
       <h3>${book.title}</h3>
       <p>by ${book.author}</p>
       <p>${book.pages} pages</p>
-            <button onclick="rateBook(${realIndex})">Rate ⭐</button>
+                  <p>${"⭐".repeat(book.rating || 0) || "No rating yet"}</p>
                   <button onclick="rateBook(${realIndex})">Rate ⭐</button>
       <p>${book.read ? "✅ Finished" : "📖 Not Yet"}</p>
       <button onclick="toggleRead(${realIndex})">${book.read ? "Mark Unread" : "Mark Read"}</button>
