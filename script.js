@@ -1,46 +1,67 @@
-const myLibrary = [];
-
-function Book(title, author, pages, read) {
-  this.id = crypto.randomUUID();
-  this.title = title;
-  this.author = author;
-  this.pages = pages;
-  this.read = read;
+class Book {
+  constructor(title, author, pages, read = false) {
+    this.title = title;
+    this.author = author;
+    this.pages = pages;
+    this.read = read;
+    this.id = Date.now() + Math.random();
+  }
 }
 
-Book.prototype.toggleRead = function() {
-  this.read = !this.read;
-};
+let myLibrary = JSON.parse(localStorage.getItem("myLibrary")) || [
+  new Book("The Hobbit", "J.R.R. Tolkien", 295, true),
+  new Book("Harry Potter", "J.K. Rowling", 300, false)
+];
 
-function addBookToLibrary(title, author, pages, read) {
-  const newBook = new Book(title, author, pages, read);
-  myLibrary.push(newBook);
+function saveLibrary() {
+  localStorage.setItem("myLibrary", JSON.stringify(myLibrary));
 }
-
-// Test: add 2 books manually
-addBookToLibrary("Atomic Habits", "James Clear", 320, false);
-addBookToLibrary("The Hobbit", "J.R.R. Tolkien", 310, false);
 
 function displayBooks() {
   const list = document.getElementById("book-list");
+  const search = document.getElementById("search")?.value.toLowerCase() || "";
   list.innerHTML = "";
-  myLibrary.forEach(book => {
-    const div = document.createElement("div");
-    div.textContent = book.title + " by " + book.author + " - " + book.pages + " pages";
-    list.appendChild(div);
-  });
+
+  myLibrary
+    .filter(book => book.title.toLowerCase().includes(search) || book.author.toLowerCase().includes(search))
+    .forEach(book => {
+      const div = document.createElement("div");
+      div.className = "book-card" + (book.read ? " read" : "");
+      div.innerHTML = `
+        <strong>${book.title}</strong><br>
+        by ${book.author} - ${book.pages} pages<br>
+        <span>${book.read ? "✅ Finished" : "📖 Not yet"}</span><br>
+        <button onclick="toggleRead(${book.id})">${book.read ? "Mark Unread" : "Mark Read"}</button>
+        <button onclick="deleteBook(${book.id})">Delete</button>
+      `;
+      list.appendChild(div);
+    });
 }
 
-displayBooks();
+function toggleRead(id) {
+  const book = myLibrary.find(b => b.id === id);
+  if (book) book.read = !book.read;
+  saveLibrary();
+  displayBooks();
+}
 
-// NEW PART - Listen to the form!
-const form = document.getElementById("book-form");
-form.addEventListener("submit", function(event) {
-  event.preventDefault();
+function deleteBook(id) {
+  myLibrary = myLibrary.filter(b => b.id !== id);
+  saveLibrary();
+  displayBooks();
+}
+
+document.getElementById("book-form").addEventListener("submit", function(e) {
+  e.preventDefault();
   const title = document.getElementById("title").value;
   const author = document.getElementById("author").value;
   const pages = document.getElementById("pages").value;
-  addBookToLibrary(title, author, pages, false);
+  myLibrary.push(new Book(title, author, pages));
+  saveLibrary();
   displayBooks();
-  form.reset();
+  this.reset();
 });
+
+document.getElementById("search")?.addEventListener("input", displayBooks);
+
+displayBooks();
