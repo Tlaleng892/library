@@ -43,7 +43,9 @@ function renderBooks() {
     let card = document.createElement("div");
     card.className = "book-card" + (book.read ? " read" : "");
     card.innerHTML = `
-      <h3>${book.title}</h3>
+      
+${book.cover ? `<img src="${book.cover}" style="width:150px; height:200px; object-fit:cover; border-radius:8px;">` : ''}
+<h3>${book.title}</h3>
       <p>by ${book.author}</p>
       <p>${book.pages} pages</p>
                   <p>${"⭐".repeat(book.rating || 0) || "No rating yet"}</p>
@@ -61,14 +63,14 @@ function renderBooks() {
 function addBook() {
   let title = document.getElementById("title").value;
   let author = document.getElementById("author").value;
-  let pages = document.getElementById("pages").value;
+  let pages = document.getElementById("cover").value;
   if (title === "" || author === "") return alert("Please fill in title and author");
-  myLibrary.push({ title: title, author: author, pages: Number(pages) || 0, read: false, rating: 0 });
+  myLibrary.push({ title: title, author: author, pages: Number(pages) || 0, read: false, rating: 0, cover: cover });
   saveLibrary();
   renderBooks();
   document.getElementById("title").value = "";
   document.getElementById("author").value = "";
-  document.getElementById("pages").value = "";
+  document.getElementById("cover").value = "";
 }
 
 function toggleRead(index) {
