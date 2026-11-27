@@ -34,3 +34,13 @@ function displayBooks() {
 }
 
 displayBooks();
+
+ssdocument.getElementById("book-form").addEventListener("submit", function(e) {
+  e.preventDefault();
+  const title = document.getElementById("title").value;
+  const author = document.getElementById("author").value;
+  const pages = document.getElementById("pages").value;
+  myLibrary.push(new Book(title, author, pages));
+  displayBooks();
+  this.reset();
+});
