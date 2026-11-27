@@ -1,23 +1,34 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
   <title>My Library</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>My Library - Tlaleng</h1>
-<input type="text" id="search" placeholder="Search books...">
-<div id="book-list"></div>
+  <h1>📚 My Library</h1>
 
+  <div id="stats">Loading stats...</div>
 
-  <h2>Add a New Book</h2>
-  <form id="book-form">
-    <input type="text" id="title" placeholder="Title" required>
-    <input type="text" id="author" placeholder="Author" required>
-    <input type="number" id="pages" placeholder="Pages" required>
-    <button type="submit">Add Book</button>
-  </form>
+  <input type="text" id="search" placeholder="Search books...">
+
+  <div id="filters">
+    <button onclick="setFilter('all')">All</button>
+    <button onclick="setFilter('read')">Finished</button>
+    <button onclick="setFilter('unread')">Not Yet</button>
+    <select id="sort" onchange="renderBooks()">
+      <option value="title">Sort A-Z</option>
+      <option value="pages">Sort by Pages</option>
+      <option value="rating">Sort by Rating</option>
+    </select>
+  </div>
+
+  <div id="library"></div>
+
+  <h2>Add a Book</h2>
+  <input type="text" id="title" placeholder="Title">
+  <input type="text" id="author" placeholder="Author">
+  <input type="number" id="pages" placeholder="Pages">
+  <button onclick="addBook()">Add Book</button>
 
   <script src="script.js"></script>
 </body>

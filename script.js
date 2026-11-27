@@ -1,67 +1,86 @@
-class Book {
-  constructor(title, author, pages, read = false) {
-    this.title = title;
-    this.author = author;
-    this.pages = pages;
-    this.read = read;
-    this.id = Date.now() + Math.random();
-  }
-}
-
 let myLibrary = JSON.parse(localStorage.getItem("myLibrary")) || [
-  new Book("The Hobbit", "J.R.R. Tolkien", 295, true),
-  new Book("Harry Potter", "J.K. Rowling", 300, false)
+  { title: "The Hobbit", author: "J.R.R. Tolkien", pages: 295, read: true, rating: 0 },
+  { title: "Harry Potter", author: "J.K. Rowling", pages: 300, read: false, rating: 0 }
 ];
+let currentFilter = "all";
 
 function saveLibrary() {
   localStorage.setItem("myLibrary", JSON.stringify(myLibrary));
 }
 
-function displayBooks() {
-  const list = document.getElementById("book-list");
-  const search = document.getElementById("search")?.value.toLowerCase() || "";
-  list.innerHTML = "";
-
-  myLibrary
-    .filter(book => book.title.toLowerCase().includes(search) || book.author.toLowerCase().includes(search))
-    .forEach(book => {
-      const div = document.createElement("div");
-      div.className = "book-card" + (book.read ? " read" : "");
-      div.innerHTML = `
-        <strong>${book.title}</strong><br>
-        by ${book.author} - ${book.pages} pages<br>
-        <span>${book.read ? "✅ Finished" : "📖 Not yet"}</span><br>
-        <button onclick="toggleRead(${book.id})">${book.read ? "Mark Unread" : "Mark Read"}</button>
-        <button onclick="deleteBook(${book.id})">Delete</button>
-      `;
-      list.appendChild(div);
-    });
+function setFilter(filter) {
+  currentFilter = filter;
+  renderBooks();
 }
 
-function toggleRead(id) {
-  const book = myLibrary.find(b => b.id === id);
-  if (book) book.read = !book.read;
-  saveLibrary();
-  displayBooks();
+function updateStats() {
+  let total = myLibrary.length;
+  let finished = myLibrary.filter(b => b.read).length;
+  let toRead = total - finished;
+  let totalPages = myLibrary.reduce((sum, b) => sum + Number(b.pages), 0);
+  document.getElementById("stats").innerHTML = 
+    `📚 ${total} books &nbsp; | &nbsp; ✅ ${finished} finished &nbsp; | &nbsp; 📖 ${toRead} to read &nbsp; | &nbsp; 📄 ${totalPages} pages total`;
 }
 
-function deleteBook(id) {
-  myLibrary = myLibrary.filter(b => b.id !== id);
-  saveLibrary();
-  displayBooks();
+function renderBooks() {
+  let container = document.getElementById("library");
+  let searchText = document.getElementById("search").value.toLowerCase();
+  let sortBy = document.getElementById("sort").value;
+  container.innerHTML = "";
+
+  let filtered = myLibrary.filter(book => {
+    let matchesSearch = book.title.toLowerCase().includes(searchText) || book.author.toLowerCase().includes(searchText);
+    let matchesFilter = currentFilter === "all" || (currentFilter === "read" && book.read) || (currentFilter === "unread" && !book.read);
+    return matchesSearch && matchesFilter;
+  });
+
+  if (sortBy === "title") filtered.sort((a,b) => a.title.localeCompare(b.title));
+  if (sortBy === "pages") filtered.sort((a,b) => a.pages - b.pages);
+  if (sortBy === "rating") filtered.sort((a,b) => b.rating - a.rating);
+
+  filtered.forEach((book) => {
+    let realIndex = myLibrary.indexOf(book);
+    let card = document.createElement("div");
+    card.className = "book-card" + (book.read ? " read" : "");
+    card.innerHTML = `
+      <h3>${book.title}</h3>
+      <p>by ${book.author}</p>
+      <p>${book.pages} pages</p>
+      <p>${book.read ? "✅ Finished" : "📖 Not Yet"}</p>
+      <button onclick="toggleRead(${realIndex})">${book.read ? "Mark Unread" : "Mark Read"}</button>
+      <button onclick="deleteBook(${realIndex})">Delete</button>
+    `;
+    container.appendChild(card);
+  });
+  updateStats();
 }
 
-document.getElementById("book-form").addEventListener("submit", function(e) {
-  e.preventDefault();
-  const title = document.getElementById("title").value;
-  const author = document.getElementById("author").value;
-  const pages = document.getElementById("pages").value;
-  myLibrary.push(new Book(title, author, pages));
+function addBook() {
+  let title = document.getElementById("title").value;
+  let author = document.getElementById("author").value;
+  let pages = document.getElementById("pages").value;
+  if (title === "" || author === "") return alert("Please fill in title and author");
+  myLibrary.push({ title: title, author: author, pages: Number(pages) || 0, read: false, rating: 0 });
   saveLibrary();
-  displayBooks();
-  this.reset();
-});
+  renderBooks();
+  document.getElementById("title").value = "";
+  document.getElementById("author").value = "";
+  document.getElementById("pages").value = "";
+}
 
-document.getElementById("search")?.addEventListener("input", displayBooks);
+function toggleRead(index) {
+  myLibrary[index].read = !myLibrary[index].read;
+  saveLibrary();
+  renderBooks();
+}
 
-displayBooks();
+function deleteBook(index) {
+  if (confirm("Delete this book?")) {
+    myLibrary.splice(index, 1);
+    saveLibrary();
+    renderBooks();
+  }
+}
+
+document.getElementById("search").addEventListener("input", renderBooks);
+renderBooks();
