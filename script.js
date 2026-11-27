@@ -46,6 +46,8 @@ function renderBooks() {
       <h3>${book.title}</h3>
       <p>by ${book.author}</p>
       <p>${book.pages} pages</p>
+            <button onclick="rateBook(${realIndex})">Rate ⭐</button>
+                  <button onclick="rateBook(${realIndex})">Rate ⭐</button>
       <p>${book.read ? "✅ Finished" : "📖 Not Yet"}</p>
       <button onclick="toggleRead(${realIndex})">${book.read ? "Mark Unread" : "Mark Read"}</button>
             <button onclick="editBook(${realIndex})">Edit</button>
@@ -96,6 +98,14 @@ function editBook(index) {
   book.title = newTitle;
   book.author = newAuthor;
   book.pages = Number(newPages) || 0;
+  saveLibrary();
+  renderBooks();
+}function rateBook(index) {
+  let rating = prompt("Rate 1 to 5 stars:", myLibrary[index].rating || "");
+  if (rating === null) return;
+  rating = Number(rating);
+  if (rating < 1 || rating > 5) { alert("Please enter 1 to 5"); return; }
+  myLibrary[index].rating = rating;
   saveLibrary();
   renderBooks();
 }
